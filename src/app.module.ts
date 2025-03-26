@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './config/database/typeorm-config.service';
 import { AppConfigModule } from './config/config.module';
 import { UsersModule } from './users/users.module';
+import { SportsModule } from './sports/sports.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UsersModule } from './users/users.module';
       useClass: TypeOrmConfigService,
     }),
     UsersModule,
+    SportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
