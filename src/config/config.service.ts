@@ -1,27 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { dbConfig } from './database/db-config';
 
 @Injectable()
 export class AppConfigService {
-  constructor(private configService: ConfigService) {}
+  get dbType(): 'postgres' {
+    return dbConfig.type;
+  }
 
   get dbHost(): string {
-    return this.configService.get<string>('DB_HOST', 'localhost');
+    return dbConfig.host;
   }
 
   get dbPort(): number {
-    return this.configService.get<number>('DB_PORT', 5432);
+    return dbConfig.port;
   }
 
   get dbUser(): string {
-    return this.configService.get<string>('DB_USER', 'postgres');
+    return dbConfig.username;
   }
 
   get dbPassword(): string {
-    return this.configService.get<string>('DB_PASSWORD', 'postgres');
+    return dbConfig.password;
   }
 
   get dbName(): string {
-    return this.configService.get<string>('DB_NAME', 'sportsdb');
+    return dbConfig.database;
   }
 }
