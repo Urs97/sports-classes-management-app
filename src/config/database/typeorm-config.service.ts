@@ -8,13 +8,12 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
-      type: 'postgres',
+      type: this.appConfigService.dbType,
       host: this.appConfigService.dbHost,
       port: this.appConfigService.dbPort,
       username: this.appConfigService.dbUser,
       password: this.appConfigService.dbPassword,
       database: this.appConfigService.dbName,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
     };
