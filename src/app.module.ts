@@ -7,6 +7,7 @@ import { AppConfigModule } from './config/config.module';
 import { UsersModule } from './users/users.module';
 import { SportsModule } from './sports/sports.module';
 import { ClassesModule } from './classes/classes.module';
+import { SchedulesModule } from './schedules/schedules.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ClassesModule } from './classes/classes.module';
     UsersModule,
     SportsModule,
     ClassesModule,
+    SchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
