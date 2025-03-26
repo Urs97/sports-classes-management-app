@@ -6,6 +6,7 @@ import { TypeOrmConfigService } from './config/database/typeorm-config.service';
 import { AppConfigModule } from './config/config.module';
 import { UsersModule } from './users/users.module';
 import { SportsModule } from './sports/sports.module';
+import { ClassesModule } from './classes/classes.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SportsModule } from './sports/sports.module';
     }),
     UsersModule,
     SportsModule,
+    ClassesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
