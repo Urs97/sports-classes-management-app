@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { SportsModule } from './sports/sports.module';
 import { ClassesModule } from './classes/classes.module';
 import { SchedulesModule } from './schedules/schedules.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SchedulesModule } from './schedules/schedules.module';
     SportsModule,
     ClassesModule,
     SchedulesModule,
+    EnrollmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
