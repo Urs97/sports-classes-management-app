@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'ty
 import { Sport } from '../../sports/entities/sport.entity';
 import { Schedule } from '../../schedules/entities/schedule.entity';
 
-@Entity()
+@Entity('classes')
 export class Class {
   @PrimaryGeneratedColumn()
   id: number;
