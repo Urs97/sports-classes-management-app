@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './config/database/typeorm-config.service';
 import { AppConfigModule } from './config/config.module';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SportsModule } from './sports/sports.module';
 import { ClassesModule } from './classes/classes.module';
@@ -17,6 +18,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
       imports: [AppConfigModule],
       useClass: TypeOrmConfigService,
     }),
+    AuthModule,
     UsersModule,
     SportsModule,
     ClassesModule,
