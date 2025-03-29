@@ -10,6 +10,7 @@ import { SportsModule } from './sports/sports.module';
 import { ClassesModule } from './classes/classes.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -17,6 +18,14 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
     TypeOrmModule.forRootAsync({
       imports: [AppConfigModule],
       useClass: TypeOrmConfigService,
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
     }),
     AuthModule,
     UsersModule,

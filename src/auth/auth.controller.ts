@@ -20,6 +20,7 @@ import { User } from '../users/entities/user.entity';
 import { sanitizeUser } from '../users/utils/user.utils';
 import { clearRefreshTokenCookie } from './utils/cookie.utils';
 import { SanitizedUser } from '../users/interfaces/sanitized-user.interface';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -31,6 +32,7 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   async login(
     @Request() req: AuthenticatedUserRequest,
@@ -40,6 +42,7 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('refresh')
   async refresh(
     @CurrentUser('sub') userId: number,
