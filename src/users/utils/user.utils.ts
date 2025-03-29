@@ -1,7 +1,7 @@
 import { User } from '../entities/user.entity';
-import { SanitizedUser } from '../interfaces/sanitized-user.interface';
+import { SanitizedUserDto } from '../dto/sanitized-user.dto';
 
-export const sanitizeUser = (user: User): SanitizedUser => {
+export const sanitizeUser = (user: User): SanitizedUserDto => {
   const { password, hashedRefreshToken, ...sanitizedUser } = user;
   return sanitizedUser;
 };
