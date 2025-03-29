@@ -11,7 +11,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { User } from '../users/entities/user.entity';
 import { AppConfigService } from '../config/config.service';
 import { sanitizeUser } from '../users/utils/user.utils';
-import { SanitizedUser } from '../users/interfaces/sanitized-user.interface';
+import { SanitizedUserDto } from '../users/dto/sanitized-user.dto';
 import {
   buildJwtPayload,
   mapToJwtUserPayload,
@@ -29,7 +29,7 @@ export class AuthService {
 
   async register(
     registerUserDto: RegisterUserDto,
-  ): Promise<SanitizedUser> {
+  ): Promise<SanitizedUserDto> {
     const user = await this.usersService.create(registerUserDto);
     return sanitizeUser(user);
   }
@@ -62,14 +62,14 @@ export class AuthService {
     await this.usersService.update(userId, { hashedRefreshToken });
   }
 
-  async login(user: SanitizedUser) {
+  async login(user: SanitizedUserDto) {
     const jwtUser = mapToJwtUserPayload(user);
     const tokens = await this.getTokens(jwtUser);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
-  async loginAndSetCookies(user: SanitizedUser, res: Response) {
+  async loginAndSetCookies(user: SanitizedUserDto, res: Response) {
     const { accessToken, refreshToken } = await this.login(user);
     setRefreshTokenCookie(res, refreshToken);
     return { access_token: accessToken };
