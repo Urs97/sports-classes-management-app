@@ -18,4 +18,7 @@ export class User {
     default: UserRole.USER,
   })
   role: UserRole;
+
+  @Column({ type: 'text', nullable: true })
+  hashedRefreshToken: string | null;
 }
