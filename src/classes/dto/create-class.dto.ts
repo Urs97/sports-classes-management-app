@@ -1,12 +1,17 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClassDto {
-  @IsNumber()
+  @ApiProperty({ example: 1, description: 'Sport ID the class belongs to' })
+  @IsInt()
   sportId: number;
 
+  @ApiProperty({ example: 'Advanced dribbling techniques' })
+  @IsString()
   @IsNotEmpty()
   description: string;
 
-  @IsNumber()
+  @ApiProperty({ example: 60, description: 'Duration in minutes' })
+  @IsInt()
   duration: number;
 }
