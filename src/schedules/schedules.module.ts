@@ -3,7 +3,7 @@ import { SchedulesController } from './schedules.controller';
 import { SchedulesService } from './schedules.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Schedule } from './entities/schedule.entity';
-import { Class } from 'src/classes/entities/class.entity';
+import { Class } from '../classes/entities/class.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Schedule, Class])],
