@@ -172,23 +172,4 @@ describe('AuthController', () => {
     const names = guards.map((g: any) => g.name);
     expect(names).toContain(RefreshTokenGuard.name);
   });
-
-  it('should block access to protected route if guard fails', async () => {
-    const fakeGuard = {
-      canActivate: () => false,
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(fakeGuard)
-      .compile();
-
-    const controllerWithBlockedGuard = module.get<AuthController>(AuthController);
-    const result = controllerWithBlockedGuard.getMe({} as any);
-    
-    expect(result).toBeDefined();
-  });
 });

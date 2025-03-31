@@ -8,6 +8,7 @@ import {
   Res,
   Req,
   UnauthorizedException,
+  HttpCode,
 } from '@nestjs/common';
 import { Response, Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
@@ -53,6 +54,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(200)
   @Post('login')
   @ApiOperation({
     summary: 'Login and receive access & refresh tokens',
@@ -84,6 +86,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(200)
   @Post('refresh')
   @ApiOperation({
     summary: 'Refresh access token',
@@ -116,6 +119,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
   @Post('logout')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user and clear refresh token' })
