@@ -37,13 +37,7 @@ git clone https://github.com/Urs97/sports-classes-management-app.git
 cd sports-classes-management-app
 ```
 
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Set up environment variables
+### 2. Set up environment variables
 
 Copy the example files:
 
@@ -100,7 +94,7 @@ http://localhost:3000/api
 
 ## 🧑‍💻 Author
 
-Made by Urs Stipeċ
+Made by Urs Stipeč
 
 ---
 
