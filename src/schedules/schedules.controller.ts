@@ -24,6 +24,8 @@ import {
     ApiNotFoundResponse,
     ApiBody,
     ApiParam,
+    ApiUnauthorizedResponse,
+    ApiForbiddenResponse,
   } from '@nestjs/swagger';
   import { SanitizedScheduleDto } from './dto/sanitized-schedule.dto';
   
@@ -36,34 +38,81 @@ import {
     constructor(private readonly schedulesService: SchedulesService) {}
   
     @Post()
-    @ApiOperation({ summary: 'Create a schedule (Admin only)' })
-    @ApiOkResponse({ type: SanitizedScheduleDto })
-    @ApiBody({ type: CreateScheduleDto })
+    @ApiOperation({
+      summary: 'Create a new schedule entry',
+      description: 'Admin-only route to create a schedule for a specific class.',
+    })
+    @ApiOkResponse({
+      description: 'Schedule created successfully',
+      type: SanitizedScheduleDto,
+    })
+    @ApiBody({
+      type: CreateScheduleDto,
+      description: 'Payload to create a schedule entry',
+    })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can create schedules' })
     async create(@Body() dto: CreateScheduleDto): Promise<SanitizedScheduleDto> {
       return this.schedulesService.create(dto);
     }
   
     @Get()
-    @ApiOperation({ summary: 'List all schedules (Admin only)' })
-    @ApiOkResponse({ type: [SanitizedScheduleDto] })
+    @ApiOperation({
+      summary: 'List all schedules',
+      description: 'Returns all scheduled class sessions. Admin-only access.',
+    })
+    @ApiOkResponse({
+      description: 'Array of schedule entries',
+      type: [SanitizedScheduleDto],
+    })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can list schedules' })
     async findAll(): Promise<SanitizedScheduleDto[]> {
       return this.schedulesService.findAll();
     }
   
     @Get(':id')
-    @ApiOperation({ summary: 'Get a schedule by ID' })
-    @ApiOkResponse({ type: SanitizedScheduleDto })
-    @ApiParam({ name: 'id', type: Number })
+    @ApiOperation({
+      summary: 'Get a schedule by ID',
+      description: 'Returns details of a single schedule entry by its ID.',
+    })
+    @ApiOkResponse({
+      description: 'Schedule entry found',
+      type: SanitizedScheduleDto,
+    })
+    @ApiParam({
+      name: 'id',
+      type: Number,
+      description: 'ID of the schedule entry',
+    })
     @ApiNotFoundResponse({ description: 'Schedule not found' })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can access this resource' })
     async findOne(@Param('id', ParseIntPipe) id: number): Promise<SanitizedScheduleDto> {
       return this.schedulesService.findOne(id);
     }
   
     @Put(':id')
-    @ApiOperation({ summary: 'Update a schedule by ID' })
-    @ApiOkResponse({ type: SanitizedScheduleDto })
-    @ApiParam({ name: 'id', type: Number })
-    @ApiBody({ type: UpdateScheduleDto })
+    @ApiOperation({
+      summary: 'Update a schedule by ID',
+      description: 'Admin-only route to update the schedule entry for a class.',
+    })
+    @ApiOkResponse({
+      description: 'Schedule updated successfully',
+      type: SanitizedScheduleDto,
+    })
+    @ApiParam({
+      name: 'id',
+      type: Number,
+      description: 'ID of the schedule to update',
+    })
+    @ApiBody({
+      type: UpdateScheduleDto,
+      description: 'Fields to update on the schedule entry',
+    })
+    @ApiNotFoundResponse({ description: 'Schedule not found' })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can update schedules' })
     async update(
       @Param('id', ParseIntPipe) id: number,
       @Body() dto: UpdateScheduleDto,
@@ -72,9 +121,26 @@ import {
     }
   
     @Delete(':id')
-    @ApiOperation({ summary: 'Delete a schedule by ID' })
-    @ApiParam({ name: 'id', type: Number })
-    @ApiOkResponse({ description: 'Schedule deleted' })
+    @ApiOperation({
+      summary: 'Delete a schedule by ID',
+      description: 'Admin-only route to remove a schedule entry.',
+    })
+    @ApiOkResponse({
+      description: 'Schedule deleted successfully',
+      schema: {
+        example: {
+          message: 'Schedule deleted successfully',
+        },
+      },
+    })
+    @ApiParam({
+      name: 'id',
+      type: Number,
+      description: 'ID of the schedule to delete',
+    })
+    @ApiNotFoundResponse({ description: 'Schedule not found' })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can delete schedules' })
     async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
       await this.schedulesService.remove(id);
     }
