@@ -41,13 +41,22 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
+  @ApiOperation({
+    summary: 'Register a new user',
+    description:
+      'Creates a new user account. Email must be unique. Returns sanitized user data (without password).',
+  })
   @ApiCreatedResponse({
     description: 'User successfully registered',
     type: SanitizedUserDto,
   })
-  @ApiBadRequestResponse({ description: 'Validation failed or email already in use' })
-  @ApiBody({ type: RegisterUserDto })
+  @ApiBadRequestResponse({
+    description: 'Invalid input or email already exists',
+  })
+  @ApiBody({
+    type: RegisterUserDto,
+    description: 'User registration data including email and password',
+  })
   async register(@Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
   }
@@ -57,26 +66,31 @@ export class AuthController {
   @HttpCode(200)
   @Post('login')
   @ApiOperation({
-    summary: 'Login and receive access & refresh tokens',
+    summary: 'User login',
     description:
-      'Returns an access token in the response body and sets a refresh token in an HttpOnly cookie (Set-Cookie header).',
+      'Authenticates a user and returns an access token in the response body. A refresh token is sent as an HttpOnly cookie.',
   })
   @ApiOkResponse({
-    description: 'Successful login with access token',
+    description: 'Login successful',
     type: AuthResponseDto,
     examples: {
       success: {
-        summary: 'Login success example',
+        summary: 'Login success',
         value: {
           accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
           tokenType: 'bearer',
-          message: 'Refresh token set in HttpOnly, Secure cookie (Set-Cookie header)',
+          message: 'Refresh token set in HttpOnly, Secure cookie',
         },
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
-  @ApiBody({ type: RegisterUserDto })
+  @ApiUnauthorizedResponse({
+    description: 'Email or password is incorrect',
+  })
+  @ApiBody({
+    type: RegisterUserDto,
+    description: 'Email and password fields for login',
+  })
   async login(
     @Request() req: AuthenticatedUserRequest,
     @Res({ passthrough: true }) res: Response,
@@ -91,23 +105,25 @@ export class AuthController {
   @ApiOperation({
     summary: 'Refresh access token',
     description:
-      'Returns a new access token in the response body and sets a new refresh token in an HttpOnly cookie.',
+      'Returns a new access token if the refresh token is valid. The refresh token must be sent in the HttpOnly cookie.',
   })
   @ApiOkResponse({
-    description: 'Access token refreshed',
+    description: 'Access token refreshed successfully',
     type: AuthResponseDto,
     examples: {
       success: {
-        summary: 'Token refresh success example',
+        summary: 'Refresh success',
         value: {
           accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
           tokenType: 'bearer',
-          message: 'Refresh token set in HttpOnly, Secure cookie (Set-Cookie header)',
+          message: 'New refresh token set in HttpOnly, Secure cookie',
         },
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid refresh token' })
+  @ApiUnauthorizedResponse({
+    description: 'Refresh token is missing, invalid, or expired',
+  })
   async refresh(
     @CurrentUser('sub') userId: number,
     @Req() req: ExpressRequest,
@@ -122,9 +138,20 @@ export class AuthController {
   @HttpCode(200)
   @Post('logout')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Logout user and clear refresh token' })
-  @ApiOkResponse({ description: 'Logged out successfully' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized access' })
+  @ApiOperation({
+    summary: 'Logout user',
+    description:
+      'Logs out the user by clearing the refresh token cookie and invalidating the session.',
+  })
+  @ApiOkResponse({
+    description: 'User logged out successfully',
+    schema: {
+      example: { message: 'Logged out successfully' },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
   async logout(
     @CurrentUser('id') userId: number,
     @Res({ passthrough: true }) res: Response,
@@ -137,13 +164,17 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get currently authenticated user info' })
+  @ApiOperation({
+    summary: 'Get current user',
+    description:
+      'Returns the authenticated user’s information (ID, email, role) based on the access token.',
+  })
   @ApiOkResponse({
-    description: 'Returns authenticated user info',
+    description: 'Authenticated user details',
     type: SanitizedUserDto,
     examples: {
-      example: {
-        summary: 'Current user',
+      user: {
+        summary: 'Example user',
         value: {
           id: 1,
           email: 'user@example.com',
@@ -152,7 +183,9 @@ export class AuthController {
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized access' })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
   getMe(@CurrentUser() user: User): SanitizedUserDto {
     return sanitizeUser(user);
   }
