@@ -41,13 +41,24 @@ export class UsersController {
 
   @Post()
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Create a new user (Admin only)' })
+  @ApiOperation({
+    summary: 'Create a new user (Admin only)',
+    description: 'Allows an admin to create a new user. Email must be unique.',
+  })
   @ApiCreatedResponse({
-    description: 'User created successfully',
+    description: 'User successfully created',
     type: SanitizedUserDto,
   })
-  @ApiForbiddenResponse({ description: 'Only admins can create users' })
-  @ApiBody({ type: CreateUserDto })
+  @ApiForbiddenResponse({
+    description: 'Access denied: Only admins can create users',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'User details including email, password, and role',
+  })
   async create(@Body() createUserDto: CreateUserDto): Promise<SanitizedUserDto> {
     const user = await this.usersService.create(createUserDto);
     return sanitizeUser(user);
@@ -55,12 +66,20 @@ export class UsersController {
 
   @Get()
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Get all users (Admin only)' })
+  @ApiOperation({
+    summary: 'List all users (Admin only)',
+    description: 'Returns a list of all registered users. Admin access only.',
+  })
   @ApiOkResponse({
-    description: 'List of all users',
+    description: 'Array of user objects',
     type: [SanitizedUserDto],
   })
-  @ApiForbiddenResponse({ description: 'Only admins can access this resource' })
+  @ApiForbiddenResponse({
+    description: 'Access denied: Only admins can view all users',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
   async findAll(): Promise<SanitizedUserDto[]> {
     const users = await this.usersService.findAll();
     return users.map(sanitizeUser);
@@ -68,11 +87,26 @@ export class UsersController {
 
   @Get(':id')
   @Roles(UserRole.ADMIN, UserRole.USER)
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiOkResponse({ description: 'User found', type: SanitizedUserDto })
-  @ApiNotFoundResponse({ description: 'User not found' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized access' })
+  @ApiOperation({
+    summary: 'Get a user by ID',
+    description:
+      'Allows a user to fetch their own info, or an admin to fetch any user by ID.',
+  })
+  @ApiOkResponse({
+    description: 'User found and returned successfully',
+    type: SanitizedUserDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'User with the given ID was not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the user to retrieve',
+  })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<SanitizedUserDto> {
     const user = await this.usersService.findOne(id);
     return sanitizeUser(user);
@@ -80,12 +114,32 @@ export class UsersController {
 
   @Put(':id')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Update user by ID (Admin only)' })
-  @ApiOkResponse({ description: 'User updated', type: SanitizedUserDto })
-  @ApiNotFoundResponse({ description: 'User not found' })
-  @ApiForbiddenResponse({ description: 'Only admins can update users' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiBody({ type: UpdateUserDto })
+  @ApiOperation({
+    summary: 'Update a user (Admin only)',
+    description: 'Allows admins to update user information by ID.',
+  })
+  @ApiOkResponse({
+    description: 'User updated successfully',
+    type: SanitizedUserDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'User with the given ID was not found',
+  })
+  @ApiForbiddenResponse({
+    description: 'Access denied: Only admins can update users',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the user to update',
+  })
+  @ApiBody({
+    type: UpdateUserDto,
+    description: 'Fields to update on the user',
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -96,12 +150,35 @@ export class UsersController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Delete user by ID (Admin only)' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiNotFoundResponse({ description: 'User not found' })
-  @ApiForbiddenResponse({ description: 'Only admins can delete users' })
-  @ApiParam({ name: 'id', type: Number })
+  @ApiOperation({
+    summary: 'Delete a user (Admin only)',
+    description: 'Allows admins to delete a user account by ID.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted successfully',
+    schema: {
+      example: {
+        message: 'User deleted successfully',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User with the given ID was not found',
+  })
+  @ApiForbiddenResponse({
+    description: 'Access denied: Only admins can delete users',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid access token',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the user to delete',
+  })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.usersService.remove(id);
   }
 }
+
