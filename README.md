@@ -71,13 +71,13 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 ### Run all unit and integration tests
 
 ```bash
-npm run test
+docker compose exec app npm run test
 ```
 
 ### Run E2E tests
 
 ```bash
-npm run test:e2e
+docker compose exec app npm run test:e2e
 ```
 
 ---
