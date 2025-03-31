@@ -66,6 +66,16 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 ---
 
+## 📖 API Documentation
+
+Once the server is running, access Swagger at:
+
+```
+http://localhost:3000/api/v1/docs
+```
+
+---
+
 ## 🧪 Testing
 
 ### Run all unit and integration tests
@@ -78,16 +88,6 @@ docker compose exec app npm run test
 
 ```bash
 docker compose exec app npm run test:e2e
-```
-
----
-
-## 📖 API Documentation
-
-Once the server is running, access Swagger at:
-
-```
-http://localhost:3000/api/v1/docs
 ```
 
 ---
