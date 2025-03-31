@@ -8,7 +8,9 @@ import { TypeOrmConfigService } from './database/typeorm-config.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
       validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.number().required(),
         DB_USER: Joi.string().required(),
