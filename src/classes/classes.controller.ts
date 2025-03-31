@@ -21,12 +21,13 @@ import {
     constructor(private readonly classesService: ClassesService) {}
   
     @Get()
-    @ApiOperation({ summary: 'Get all classes (filterable by sport)' })
     @ApiQuery({ name: 'sports', required: false, type: String, isArray: true })
     @ApiOkResponse({ type: [SanitizedClassDto] })
-    async findAll(@Query('sports') sports?: string[]): Promise<SanitizedClassDto[]> {
-      return this.classesService.findAll(sports);
-    }
+    @ApiOperation({ summary: 'Get all classes (filterable by sport)' })
+    async findAll(@Query('sports') sports?: string | string[]): Promise<SanitizedClassDto[]> {
+      const sportsFilter = typeof sports === 'string' ? sports.split(',') : sports;
+      return this.classesService.findAll(sportsFilter);
+    }    
   
     @Get(':id')
     @ApiOperation({ summary: 'Get class details by ID' })
