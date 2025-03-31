@@ -1,9 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SanitizedSportDto {
-  @ApiProperty({ example: 1 })
+  @ApiProperty({
+    example: 1,
+    description: 'Unique identifier of the sport',
+  })
   id: number;
 
-  @ApiProperty({ example: 'Football' })
+  @ApiProperty({
+    example: 'Football',
+    description: 'Name of the sport',
+  })
   name: string;
 }

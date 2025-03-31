@@ -25,6 +25,8 @@ import {
     ApiNotFoundResponse,
     ApiParam,
     ApiBody,
+    ApiUnauthorizedResponse,
+    ApiForbiddenResponse,
   } from '@nestjs/swagger';
   import { SanitizedSportDto } from './dto/sanitized-sport.dto';
   
@@ -34,8 +36,14 @@ import {
     constructor(private readonly sportsService: SportsService) {}
   
     @Get()
-    @ApiOperation({ summary: 'Get all sports' })
-    @ApiOkResponse({ type: [SanitizedSportDto] })
+    @ApiOperation({
+      summary: 'List all sports',
+      description: 'Returns a list of all available sports in the system.',
+    })
+    @ApiOkResponse({
+      description: 'List of sports',
+      type: [SanitizedSportDto],
+    })
     async findAll(): Promise<SanitizedSportDto[]> {
       const sports = await this.sportsService.findAll();
       return sports;
@@ -45,9 +53,20 @@ import {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(UserRole.ADMIN)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Create a new sport (Admin only)' })
-    @ApiCreatedResponse({ description: 'Sport created', type: SanitizedSportDto })
-    @ApiBody({ type: CreateSportDto })
+    @ApiOperation({
+      summary: 'Create a new sport (Admin only)',
+      description: 'Admin-only endpoint to create a new sport (e.g., Football, Basketball).',
+    })
+    @ApiCreatedResponse({
+      description: 'Sport successfully created',
+      type: SanitizedSportDto,
+    })
+    @ApiBody({
+      type: CreateSportDto,
+      description: 'Payload to create a new sport',
+    })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can create sports' })
     async create(@Body() dto: CreateSportDto): Promise<SanitizedSportDto> {
       return this.sportsService.create(dto);
     }
@@ -56,11 +75,26 @@ import {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(UserRole.ADMIN)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Update a sport by ID (Admin only)' })
-    @ApiOkResponse({ description: 'Sport updated', type: SanitizedSportDto })
+    @ApiOperation({
+      summary: 'Update an existing sport (Admin only)',
+      description: 'Admin-only endpoint to update the name of a sport by its ID.',
+    })
+    @ApiOkResponse({
+      description: 'Sport updated successfully',
+      type: SanitizedSportDto,
+    })
     @ApiNotFoundResponse({ description: 'Sport not found' })
-    @ApiParam({ name: 'id', type: Number })
-    @ApiBody({ type: UpdateSportDto })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can update sports' })
+    @ApiParam({
+      name: 'id',
+      type: Number,
+      description: 'ID of the sport to update',
+    })
+    @ApiBody({
+      type: UpdateSportDto,
+      description: 'New name for the sport',
+    })
     async update(
       @Param('id', ParseIntPipe) id: number,
       @Body() dto: UpdateSportDto,
@@ -72,10 +106,26 @@ import {
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(UserRole.ADMIN)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Delete a sport by ID (Admin only)' })
-    @ApiOkResponse({ description: 'Sport deleted successfully' })
+    @ApiOperation({
+      summary: 'Delete a sport (Admin only)',
+      description: 'Admin-only endpoint to delete a sport by its ID.',
+    })
+    @ApiOkResponse({
+      description: 'Sport deleted successfully',
+      schema: {
+        example: {
+          message: 'Sport deleted successfully',
+        },
+      },
+    })
     @ApiNotFoundResponse({ description: 'Sport not found' })
-    @ApiParam({ name: 'id', type: Number })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access token' })
+    @ApiForbiddenResponse({ description: 'Only admins can delete sports' })
+    @ApiParam({
+      name: 'id',
+      type: Number,
+      description: 'ID of the sport to delete',
+    })
     async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
       await this.sportsService.remove(id);
     }
