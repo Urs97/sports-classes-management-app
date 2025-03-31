@@ -1,6 +1,6 @@
 # 🏋️‍♂️ Sports Program Management API
 
-This is a RESTful API built with **NestJS**, **TypeORM**, and **PostgreSQL** for managing sports programs. It includes features like user registration, role-based access control, class scheduling, enrollments, and full end-to-end testing.
+This is a RESTful API built with **NestJS**, **TypeORM**, and **PostgreSQL** for managing sports programs. It includes features like user registration, role-based access control, class scheduling, enrollments, unit and full end-to-end testing.
 
 ---
 
@@ -8,7 +8,7 @@ This is a RESTful API built with **NestJS**, **TypeORM**, and **PostgreSQL** for
 
 - User registration and authentication (JWT + Refresh tokens)
 - Role-based access (Admin/User)
-- Manage sports, classes, and schedules (CRUD for Admins)
+- Manage sports, classes, and schedules
 - Users can enroll in classes
 - Filter and view sports classes
 - Full E2E and unit testing setup
@@ -87,7 +87,7 @@ npm run test:e2e
 Once the server is running, access Swagger at:
 
 ```
-http://localhost:3000/api
+http://localhost:3000/api/v1/docs
 ```
 
 ---
