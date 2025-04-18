@@ -72,12 +72,12 @@ describe('Sports E2E', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Handball' })
       .expect(201);
-
+  
     const sportId = createRes.body.id;
-
+  
     await http
       .delete(`/sports/${sportId}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-  });
+      .expect(204);
+  });  
 });

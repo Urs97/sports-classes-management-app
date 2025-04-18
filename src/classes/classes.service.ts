@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Class } from './entities/class.entity';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
-import { Sport } from '../sports/entities/sport.entity';
+import { AbstractSportRepository } from '../sport/abstract/sport.abstract.repository';
 
 @Injectable()
 export class ClassesService {
@@ -12,8 +12,8 @@ export class ClassesService {
     @InjectRepository(Class)
     private readonly classRepo: Repository<Class>,
 
-    @InjectRepository(Sport)
-    private readonly sportRepo: Repository<Sport>,
+    @Inject(AbstractSportRepository)
+    private readonly sportRepo: AbstractSportRepository,
   ) {}
 
   async create(dto: CreateClassDto): Promise<Class> {
