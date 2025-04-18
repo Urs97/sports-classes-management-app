@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Sport } from '../../sports/entities/sport.entity';
+import { Sport } from '../../sport/schema/sport.schema';
 import { Schedule } from '../../schedules/entities/schedule.entity';
 
 @Entity('classes')

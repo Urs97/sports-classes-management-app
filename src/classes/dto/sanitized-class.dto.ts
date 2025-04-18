@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SanitizedSportDto } from '../../sports/dto/sanitized-sport.dto';
+import { SportResponse } from '../../sport/response/sport.response';
 
 export class SanitizedClassDto {
   @ApiProperty({
@@ -9,10 +9,10 @@ export class SanitizedClassDto {
   id: number;
 
   @ApiProperty({
-    type: () => SanitizedSportDto,
+    type: () => SportResponse,
     description: 'Sport associated with this class',
   })
-  sport: SanitizedSportDto;
+  sport: SportResponse;
 
   @ApiProperty({
     example: 'Beginner football techniques',

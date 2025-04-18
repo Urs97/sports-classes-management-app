@@ -4,7 +4,7 @@ import { TypeOrmConfigService } from './config/database/typeorm-config.service';
 import { AppConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { SportsModule } from './sports/sports.module';
+import { SportModule } from './sport/sport.module';
 import { ClassesModule } from './classes/classes.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
@@ -27,7 +27,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     }),
     AuthModule,
     UsersModule,
-    SportsModule,
+    SportModule,
     ClassesModule,
     SchedulesModule,
     EnrollmentsModule,
