@@ -1,23 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { AbstractSportService } from '../abstract/sport.abstract.service';
 import { AbstractSportRepository } from '../abstract/sport.abstract.repository';
 import { ISport, ISportRecord } from '../interface/sport.interface';
-import { CreateSportTransaction } from './create-sport-transaction';
 
 @Injectable()
 export class SportService extends AbstractSportService {
   constructor(
     private readonly sportRepository: AbstractSportRepository,
-    private readonly createSportTransaction: CreateSportTransaction,
   ) {
     super();
   }
 
   async createSport(data: Partial<ISport>): Promise<ISportRecord> {
-    return this.createSportTransaction.run(data);
-  }
+    const existing = await this.sportRepository.findOne({
+      where: { name: data.name },
+    });
 
+    if (existing) {
+      throw new ConflictException(`Sport with name '${data.name}' already exists`);
+    }
+
+    return this.sportRepository.create(data);
+  }
+  
   async listSports(): Promise<ISportRecord[]> {
     return this.sportRepository.getAllSports();
   }
