@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { PaginationOptionsDto } from 'src/common/dto/pagination/pagination-options.dto';
+
 import { AbstractSportRepository } from '../abstract/sport.abstract.repository';
 import { ISportRecord } from '../interface/sport.interface';
 import { Sport } from '../schema/sport.schema';
@@ -23,7 +25,11 @@ export class SportRepository extends AbstractSportRepository {
     return this.entity.findOne({ where: { name } });
   }
 
-  async getAllSports(): Promise<ISportRecord[]> {
-    return this.entity.find();
+  async getSportsAndCount({
+    page,
+    limit,
+  }: PaginationOptionsDto): Promise<[ISportRecord[], number]> {
+    const skip = (page - 1) * limit;
+    return await this.entity.findAndCount({ skip, take: limit });
   }
 }

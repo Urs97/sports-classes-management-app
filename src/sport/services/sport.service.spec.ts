@@ -3,7 +3,9 @@ import { SportService } from './sport-service';
 import { AbstractSportRepository } from '../abstract/sport.abstract.repository';
 import { CreateSportTransaction } from './create-sport-transaction';
 import { ISportRecord } from '../interface/sport.interface';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { PaginationOptionsDto } from '../../common/dto/pagination/pagination-options.dto';
+import { createPaginatedResponse } from '../../../test/utils/pagination.util';
 
 const mockSport: ISportRecord = { id: 1, name: 'Basketball' };
 const mockUpdatedSport: ISportRecord = { id: 1, name: 'Football' };
@@ -16,6 +18,9 @@ describe('SportService', () => {
   const repoMock = {
     getSportById: jest.fn(),
     getAllSports: jest.fn(),
+    getSportsAndCount: jest.fn(),
+    getSportByName: jest.fn(),
+    create: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
   };
@@ -48,18 +53,42 @@ describe('SportService', () => {
 
   describe('createSport', () => {
     it('should create and return a sport', async () => {
-      transactionMock.run.mockResolvedValue(mockSport);
+      repoMock.getSportByName.mockResolvedValue(null);
+      repoMock.create.mockResolvedValue(mockSport);
+  
       const result = await service.createSport({ name: 'Basketball' });
+  
       expect(result).toEqual(mockSport);
-      expect(transactionMock.run).toHaveBeenCalledWith({ name: 'Basketball' });
+      expect(repoMock.getSportByName).toHaveBeenCalledWith('Basketball');
+      expect(repoMock.create).toHaveBeenCalledWith({ name: 'Basketball' });
+    });
+  
+    it('should throw ConflictException if sport already exists', async () => {
+      repoMock.getSportByName.mockResolvedValue(mockSport);
+  
+      await expect(service.createSport({ name: 'Basketball' })).rejects.toThrow(
+        ConflictException,
+      );
+  
+      expect(repoMock.getSportByName).toHaveBeenCalledWith('Basketball');
     });
   });
 
   describe('listSports', () => {
-    it('should return all sports', async () => {
-      repoMock.getAllSports.mockResolvedValue([mockSport]);
-      const result = await service.listSports();
-      expect(result).toEqual([mockSport]);
+    it('should return paginated sports list', async () => {
+      const paginationOptions: PaginationOptionsDto = {
+        page: 1, limit: 10,
+        skip: 0
+      };
+
+      const mockData = createPaginatedResponse([mockSport], 1, 10, 1);
+
+      repoMock.getSportsAndCount.mockResolvedValue([[mockSport], 1]);
+
+      const result = await service.listSports(paginationOptions);
+
+      expect(result).toEqual(mockData);
+      expect(repoMock.getSportsAndCount).toHaveBeenCalledWith(paginationOptions);
     });
   });
 

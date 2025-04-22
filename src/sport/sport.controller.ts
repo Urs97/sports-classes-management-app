@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,6 +20,10 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { ApiPaginatedResponse } from '../common/decorators/paginated-resource.decorator';
+import { Paginated } from '../common/dto/pagination/paginated.dto';
+import { PaginationOptionsDto } from '../common/dto/pagination/pagination-options.dto';
+
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -28,7 +33,7 @@ import { CreateSportDto } from './dto/create-sport.dto';
 import { UpdateSportDto } from './dto/update-sport.dto';
 import { SportResponse } from './response/sport.response';
 import { AbstractSportService } from './abstract/sport.abstract.service';
-import { NumberIdDto } from 'src/common/dto/number-id.dto';
+import { NumberIdDto } from '../common/dto/number-id.dto';
 
 @ApiTags('Sports')
 @ApiBearerAuth()
@@ -38,12 +43,15 @@ export class SportController {
   constructor(private readonly sportService: AbstractSportService) {}
 
   @Get()
+  @ApiPaginatedResponse(SportResponse)
   @ApiOperation({
     summary: 'List all sports',
-    description: 'Returns a list of all available sports in the system.',
+    description: 'Returns a paginated list of all available sports in the system.',
   })
-  async findAll(): Promise<SportResponse[]> {
-    return this.sportService.listSports();
+  async findAll(
+    @Query() paginationOptionsDto: PaginationOptionsDto,
+  ): Promise<Paginated<SportResponse>> {
+    return this.sportService.listSports(paginationOptionsDto);
   }
 
   @Post()

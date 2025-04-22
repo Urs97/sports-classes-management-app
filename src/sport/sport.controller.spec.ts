@@ -1,10 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { PaginationOptionsDto } from '../common/dto/pagination/pagination-options.dto';
+import { createPaginatedResponse } from '../../test/utils/pagination.util';
+
 import { SportController } from './sport.controller';
 import { AbstractSportService } from './abstract/sport.abstract.service';
 import { CreateSportDto } from './dto/create-sport.dto';
 import { UpdateSportDto } from './dto/update-sport.dto';
 import { SportResponse } from './response/sport.response';
-import { NumberIdDto } from 'src/common/dto/number-id.dto';
+import { NumberIdDto } from '../common/dto/number-id.dto';
 
 const mockSport: SportResponse = { id: 1, name: 'Basketball' };
 const idParam: NumberIdDto = { id: 1 };
@@ -37,11 +41,20 @@ describe('SportController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all sports', async () => {
-      sportServiceMock.listSports!.mockResolvedValue([mockSport]);
-      const result = await controller.findAll();
-      expect(result).toEqual([mockSport]);
-      expect(service.listSports).toHaveBeenCalled();
+    it('should return paginated sports', async () => {
+      const paginationOptions: PaginationOptionsDto = {
+        page: 1, limit: 10,
+        skip: 0
+      };
+
+      const paginatedResponse = createPaginatedResponse([mockSport], 1, 10, 1);
+
+      sportServiceMock.listSports!.mockResolvedValue(paginatedResponse);
+  
+      const result = await controller.findAll(paginationOptions);
+  
+      expect(result).toEqual(paginatedResponse);
+      expect(service.listSports).toHaveBeenCalledWith(paginationOptions);
     });
   });
 

@@ -1,5 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
+import { PaginationModel } from '../../common/pagination/pagination-model';
+import { IPaginationParams } from 'src/common/pagination/pagination-params.interface';
+
 import { AbstractSportService } from '../abstract/sport.abstract.service';
 import { AbstractSportRepository } from '../abstract/sport.abstract.repository';
 import { ISport, ISportRecord } from '../interface/sport.interface';
@@ -22,8 +25,9 @@ export class SportService extends AbstractSportService {
     return this.sportRepository.create(data);
   }
   
-  async listSports(): Promise<ISportRecord[]> {
-    return this.sportRepository.getAllSports();
+  async listSports(pagination: IPaginationParams): Promise<PaginationModel<ISportRecord>> {
+    const [items, count] = await this.sportRepository.getSportsAndCount(pagination);
+    return new PaginationModel(items, pagination, count);
   }
 
   async updateSport(id: number, data: Partial<ISport>): Promise<ISportRecord> {
