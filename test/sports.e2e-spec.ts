@@ -36,17 +36,29 @@ describe('Sports E2E', () => {
     expect(res.body.name).toBe('Basketball');
   });
 
-  it('should list all sports', async () => {
+  it('should list all sports with pagination', async () => {
     await http
       .post('/sports')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Football' })
       .expect(201);
-
-    const res = await http.get('/sports').expect(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.some((sport) => sport.name === 'Football')).toBe(true);
-  });
+  
+    const res = await http.get('/sports?page=1&limit=10').expect(200);
+  
+    expect(res.body).toHaveProperty('items');
+    expect(Array.isArray(res.body.items)).toBe(true);
+    expect(res.body.items.some((sport) => sport.name === 'Football')).toBe(true);
+  
+    expect(res.body).toHaveProperty('meta');
+    expect(res.body.meta).toMatchObject({
+      page: 1,
+      limit: 10,
+      itemCount: expect.any(Number),
+      pageCount: expect.any(Number),
+      hasPreviousPage: expect.any(Boolean),
+      hasNextPage: expect.any(Boolean),
+    });
+  });  
 
   it('should update a sport', async () => {
     const createRes = await http

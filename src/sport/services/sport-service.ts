@@ -1,25 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { PaginationModel } from '../../common/pagination/pagination-model';
+import { IPaginationParams } from 'src/common/pagination/pagination-params.interface';
 
 import { AbstractSportService } from '../abstract/sport.abstract.service';
 import { AbstractSportRepository } from '../abstract/sport.abstract.repository';
 import { ISport, ISportRecord } from '../interface/sport.interface';
-import { CreateSportTransaction } from './create-sport-transaction';
 
 @Injectable()
 export class SportService extends AbstractSportService {
   constructor(
     private readonly sportRepository: AbstractSportRepository,
-    private readonly createSportTransaction: CreateSportTransaction,
   ) {
     super();
   }
 
-  async createSport(data: Partial<ISport>): Promise<ISportRecord> {
-    return this.createSportTransaction.run(data);
-  }
+  async createSport(data: ISport): Promise<ISportRecord> {
+    const existing = await this.sportRepository.getSportByName(data.name);
 
-  async listSports(): Promise<ISportRecord[]> {
-    return this.sportRepository.getAllSports();
+    if (existing) {
+      throw new ConflictException(`Sport with name '${data.name}' already exists`);
+    }
+
+    return this.sportRepository.create(data);
+  }
+  
+  async listSports(pagination: IPaginationParams): Promise<PaginationModel<ISportRecord>> {
+    const [items, count] = await this.sportRepository.getSportsAndCount(pagination);
+    return new PaginationModel(items, pagination, count);
   }
 
   async updateSport(id: number, data: Partial<ISport>): Promise<ISportRecord> {
