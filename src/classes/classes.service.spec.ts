@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ClassesService } from './classes.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Class } from './entities/class.entity';
-import { Sport } from '../sports/entities/sport.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { AbstractSportRepository } from '../sport/abstract/sport.abstract.repository';
 
 const mockClass = {
   id: 1,
@@ -17,7 +17,7 @@ const mockClass = {
 describe('ClassesService', () => {
   let service: ClassesService;
   let classRepo: Repository<Class>;
-  let sportRepo: Repository<Sport>;
+  let sportRepo: AbstractSportRepository;
 
   const mockClassRepo = {
     find: jest.fn(),
@@ -36,15 +36,14 @@ describe('ClassesService', () => {
       providers: [
         ClassesService,
         { provide: getRepositoryToken(Class), useValue: mockClassRepo },
-        { provide: getRepositoryToken(Sport), useValue: mockSportRepo },
+        { provide: AbstractSportRepository, useValue: mockSportRepo },
       ],
     }).compile();
-
+  
     service = module.get<ClassesService>(ClassesService);
     classRepo = module.get(getRepositoryToken(Class));
-    sportRepo = module.get(getRepositoryToken(Sport));
-    jest.clearAllMocks();
-  });
+    sportRepo = module.get(AbstractSportRepository);
+  });  
 
   it('should create a class with a valid sport', async () => {
     mockSportRepo.findOne.mockResolvedValue(mockClass.sport);
