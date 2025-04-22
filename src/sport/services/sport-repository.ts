@@ -19,6 +19,10 @@ export class SportRepository extends AbstractSportRepository {
     return this.entity.findOne({ where: { id } });
   }
 
+  async getSportByName(name: string): Promise<ISportRecord | null> {
+    return this.entity.findOne({ where: { name } });
+  }
+
   async getAllSports(): Promise<ISportRecord[]> {
     return this.entity.find();
   }

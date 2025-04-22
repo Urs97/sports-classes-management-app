@@ -12,10 +12,8 @@ export class SportService extends AbstractSportService {
     super();
   }
 
-  async createSport(data: Partial<ISport>): Promise<ISportRecord> {
-    const existing = await this.sportRepository.findOne({
-      where: { name: data.name },
-    });
+  async createSport(data: ISport): Promise<ISportRecord> {
+    const existing = await this.sportRepository.getSportByName(data.name);
 
     if (existing) {
       throw new ConflictException(`Sport with name '${data.name}' already exists`);

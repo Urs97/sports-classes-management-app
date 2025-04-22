@@ -6,5 +6,6 @@ import { Sport } from '../schema/sport.schema';
 @Injectable()
 export abstract class AbstractSportRepository extends AbstractRepository<Sport> {
     abstract getSportById(id: number): Promise<ISportRecord | null>;
+    abstract getSportByName(name: string): Promise<ISportRecord | null>;
     abstract getAllSports(): Promise<ISportRecord[]>;
 }
