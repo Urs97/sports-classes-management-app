@@ -5,6 +5,7 @@ import { Schedule } from './entities/schedule.entity';
 import { Class } from '../classes/entities/class.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { User } from 'src/users/entities/user.entity';
 
 const mockClass = {
   id: 1,
@@ -12,6 +13,7 @@ const mockClass = {
   duration: 60,
   sport: { id: 1, name: 'Football' },
   schedules: [],
+  createdBy: { id: 1 } as User,
 };
 
 const mockSchedule = {
