@@ -7,7 +7,7 @@ import { Class } from '../classes/entities/class.entity';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserEnrolledEvent } from './events/user-enrolled.event';
-import { EnrollmentEvents } from './constants/enrollment-events.constant';
+import { EnrollmentEvents } from './constants/enrollment-events.enum';
 
 @Injectable()
 export class EnrollmentsService {

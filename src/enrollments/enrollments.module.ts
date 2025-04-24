@@ -8,7 +8,9 @@ import { Class } from '../classes/entities/class.entity';
 import { EnrollmentsGateway } from './gateway/enrollments.gateway';
 import { AbstractEnrollmentsGateway } from './abstract/enrollments.abstract.gateway';
 import { UserEnrolledListener } from './listeners/user-enrolled.listener';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
+import { WsJwtAuthMiddleware } from '../auth/guards/jwt-ws.middleware';
+import { AbstractWsJwtAuthMiddleware } from '../auth/abstract/jwt-ws.abstract.middleware';
 
 @Module({
   imports: [
@@ -19,11 +21,16 @@ import { AuthModule } from 'src/auth/auth.module';
   providers: [
     EnrollmentsService,
     UserEnrolledListener,
+    EnrollmentsGateway,
     {
       provide: AbstractEnrollmentsGateway,
       useClass: EnrollmentsGateway,
     },
-    EnrollmentsGateway,
+    WsJwtAuthMiddleware,
+    {
+      provide: AbstractWsJwtAuthMiddleware,
+      useClass: WsJwtAuthMiddleware,
+    },
   ],
 })
 export class EnrollmentsModule {}

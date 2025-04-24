@@ -1,54 +1,49 @@
-import {
-  WebSocketGateway,
-  WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-} from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UseGuards, Logger } from '@nestjs/common';
-import { JwtWsGuard } from '../../auth/guards/jwt-ws.guard';
-import { AbstractEnrollmentsGateway } from '../abstract/enrollments.abstract.gateway';
+import { Logger } from '@nestjs/common';
 import { UserRole } from '../../users/enums/user-role.enum';
-import { EnrollmentEvents } from '../constants/enrollment-events.constant';
+import { EnrollmentEvents } from '../constants/enrollment-events.enum';
+import { AbstractEnrollmentsGateway } from '../abstract/enrollments.abstract.gateway';
+import { AbstractWsJwtAuthMiddleware } from '../../auth/abstract/jwt-ws.abstract.middleware';
 
-@UseGuards(JwtWsGuard)
-@WebSocketGateway()
-export class EnrollmentsGateway
-  extends AbstractEnrollmentsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
-  @WebSocketServer()
-  private server: Server;
-
+@WebSocketGateway({
+  cors: true,
+  transports: ['websocket'],
+  path: '/socket.io',
+})
+export class EnrollmentsGateway implements AbstractEnrollmentsGateway, OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer() private server: Server;
   private readonly logger = new Logger(EnrollmentsGateway.name);
 
-  handleConnection(client: Socket): void {
-    const user = (client as any).user;
+  constructor(private readonly jwtAuthMiddleware: AbstractWsJwtAuthMiddleware) {}
 
-    if (user?.role === UserRole.ADMIN && user.userId) {
-      client.join(`admin-${user.userId}`);
-      this.logger.log(`Admin ${user.userId} connected and joined room admin-${user.userId}`);
+  afterInit(server: Server) {
+    server.use((socket, next) => {
+      this.jwtAuthMiddleware.use(socket, next);
+    });
+  }
+
+  handleConnection(client: Socket): void {
+    const user = client.data.user;
+    if (user?.role === UserRole.ADMIN && user?.sub) {
+      const room = `admin-${user.sub}`;
+      client.join(room);
     } else {
-      this.logger.warn(
-        `Socket connection attempt rejected: Invalid or unauthorized user. Payload: ${JSON.stringify(
-          user,
-        )}`,
-      );
       client.disconnect();
+      this.logger.warn(`Unauthorized client disconnected: ${client.id}`);
     }
   }
 
   handleDisconnect(client: Socket): void {
-    const user = (client as any).user;
-
-    if (user?.role === UserRole.ADMIN && user.userId) {
-      client.leave(`admin-${user.userId}`);
-      this.logger.log(`Admin ${user.userId} disconnected and left room admin-${user.userId}`);
+    const user = client.data.user;
+    if (user?.role === UserRole.ADMIN && user?.sub) {
+      const room = `admin-${user.sub}`;
+      client.leave(room);
     }
   }
 
   sendMessageToAdmin(adminId: number, payload: { message: string }): void {
-    this.server.to(`admin-${adminId}`).emit(EnrollmentEvents.USER_ENROLLED, payload);
-    this.logger.log(`Sent message to admin-${adminId}: ${JSON.stringify(payload)}`);
+    const room = `admin-${adminId}`;
+    this.server.to(room).emit(EnrollmentEvents.USER_ENROLLED, payload);
   }
 }

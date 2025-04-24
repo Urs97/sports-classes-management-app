@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Class } from './entities/class.entity';
@@ -16,18 +16,20 @@ export class ClassesService {
     private readonly sportRepo: AbstractSportRepository,
   ) {}
 
-  async create(dto: CreateClassDto): Promise<Class> {
+  async create(dto: CreateClassDto, adminId: { id: number }): Promise<Class> {
     const sport = await this.sportRepo.findOne({ where: { id: dto.sportId } });
     if (!sport) throw new NotFoundException('Sport not found');
-
+  
     const newClass = this.classRepo.create({
       sport,
       description: dto.description,
       duration: dto.duration,
+      createdBy: adminId
     });
 
+    if (!adminId) throw new BadRequestException('Invalid admin user');
     return this.classRepo.save(newClass);
-  }
+  }  
 
   async findAll(sportsFilter?: string[]): Promise<Class[]> {
     if (sportsFilter && sportsFilter.length) {

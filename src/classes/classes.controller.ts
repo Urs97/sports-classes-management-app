@@ -14,8 +14,9 @@ import {
     ApiNotFoundResponse, ApiBody
   } from '@nestjs/swagger';
   import { SanitizedClassDto } from './dto/sanitized-class.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
   
-  @ApiTags('Classes')
+@ApiTags('Classes')
 @Controller('classes')
 export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
@@ -80,8 +81,11 @@ export class ClassesController {
     type: CreateClassDto,
     description: 'Class creation payload including sport ID, description, and duration',
   })
-  async create(@Body() dto: CreateClassDto): Promise<SanitizedClassDto> {
-    return this.classesService.create(dto);
+  async create(
+    @Body() dto: CreateClassDto,
+    @CurrentUser() admin: { userId: number },
+  ): Promise<SanitizedClassDto> {
+    return this.classesService.create(dto, { id: admin.userId });
   }
 
   @Put(':id')
