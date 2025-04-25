@@ -12,8 +12,8 @@ export const setupE2ETest = async () => {
 
   const app = moduleRef.createNestApplication();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  await app.init();
 
+  await app.listen(3001);
   const http = request.agent(app.getHttpServer());
   const dataSource = app.get<DataSource>(getDataSourceToken());
 

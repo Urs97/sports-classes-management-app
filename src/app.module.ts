@@ -9,6 +9,7 @@ import { ClassesModule } from './classes/classes.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         },
       ],
     }),
+    EventEmitterModule.forRoot(),
     AuthModule,
     UsersModule,
     SportModule,

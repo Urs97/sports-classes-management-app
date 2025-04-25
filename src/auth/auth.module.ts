@@ -10,6 +10,7 @@ import { AuthController } from './auth.controller';
 import { RefreshTokenStrategy } from './strategies/refresh-token-strategy';
 import { AppConfigModule } from '../config/config.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { WsJwtAuthMiddleware } from './guards/jwt-ws.middleware';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     JwtStrategy,
     RefreshTokenStrategy,
     RolesGuard,
+    WsJwtAuthMiddleware,
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule, WsJwtAuthMiddleware],
 })
 export class AuthModule {}

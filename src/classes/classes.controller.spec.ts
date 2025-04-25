@@ -3,12 +3,23 @@ import { ClassesController } from './classes.controller';
 import { ClassesService } from './classes.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { User } from '../users/entities/user.entity';
+import { UserRole } from '../users/enums/user-role.enum';
+
+const mockAdmin: User = {
+  id: 1,
+  email: 'admin@test.com',
+  password: '',
+  role: UserRole.ADMIN,
+  hashedRefreshToken: null
+};
 
 const mockClass = {
   id: 1,
   description: 'Football Class',
   duration: 60,
   sport: { id: 1, name: 'Football' },
+  createdBy: mockAdmin,
 };
 
 describe('ClassesController', () => {
@@ -46,12 +57,12 @@ describe('ClassesController', () => {
     expect(result).toEqual(mockClass);
   });
 
-  it('should create a class', async () => {
+  it('should create a class with authenticated admin', async () => {
     mockService.create.mockResolvedValue(mockClass);
     const dto: CreateClassDto = { description: 'Football', duration: 60, sportId: 1 };
-    const result = await controller.create(dto);
+    const result = await controller.create(dto, { userId: mockAdmin.id});
     expect(result).toEqual(mockClass);
-    expect(mockService.create).toHaveBeenCalledWith(dto);
+    expect(mockService.create).toHaveBeenCalledWith(dto, { id: mockAdmin.id });
   });
 
   it('should update a class', async () => {

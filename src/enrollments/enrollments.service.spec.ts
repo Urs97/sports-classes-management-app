@@ -4,11 +4,17 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Enrollment } from './entities/enrollment.entity';
 import { User } from '../users/entities/user.entity';
 import { Class } from '../classes/entities/class.entity';
-import { Repository } from 'typeorm';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserEnrolledEvent } from './events/user-enrolled.event';
 
 const mockUser = { id: 1, email: 'test@example.com', role: 'USER' };
-const mockClass = { id: 1, description: 'Football Basics', duration: 60 };
+const mockClass = { 
+  id: 1, 
+  description: 'Football Basics', 
+  duration: 60,
+  createdBy: { id: 99 }
+};
 const mockEnrollment = {
   id: 1,
   user: mockUser,
@@ -18,9 +24,7 @@ const mockEnrollment = {
 
 describe('EnrollmentsService', () => {
   let service: EnrollmentsService;
-  let enrollmentRepo: Repository<Enrollment>;
-  let userRepo: Repository<User>;
-  let classRepo: Repository<Class>;
+  let eventEmitter: EventEmitter2;
 
   const mockEnrollmentRepo = {
     find: jest.fn(),
@@ -37,6 +41,10 @@ describe('EnrollmentsService', () => {
     findOne: jest.fn(),
   };
 
+  const mockEventEmitter = {
+    emit: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -44,17 +52,16 @@ describe('EnrollmentsService', () => {
         { provide: getRepositoryToken(Enrollment), useValue: mockEnrollmentRepo },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
         { provide: getRepositoryToken(Class), useValue: mockClassRepo },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
 
     service = module.get<EnrollmentsService>(EnrollmentsService);
-    enrollmentRepo = module.get(getRepositoryToken(Enrollment));
-    userRepo = module.get(getRepositoryToken(User));
-    classRepo = module.get(getRepositoryToken(Class));
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
     jest.clearAllMocks();
   });
 
-  it('should create enrollment if user and class exist and not already enrolled', async () => {
+  it('should create enrollment and emit event', async () => {
     mockUserRepo.findOne.mockResolvedValue(mockUser);
     mockClassRepo.findOne.mockResolvedValue(mockClass);
     mockEnrollmentRepo.findOne.mockResolvedValue(null);
@@ -65,6 +72,10 @@ describe('EnrollmentsService', () => {
 
     expect(result).toEqual(mockEnrollment);
     expect(mockEnrollmentRepo.save).toHaveBeenCalled();
+    expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+      'user.enrolled',
+      new UserEnrolledEvent(mockUser.email, mockClass.description, mockClass.createdBy.id),
+    );
   });
 
   it('should throw if user is not found', async () => {

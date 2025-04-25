@@ -5,6 +5,16 @@ import { Class } from './entities/class.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { AbstractSportRepository } from '../sport/abstract/sport.abstract.repository';
+import { User } from '../users/entities/user.entity';
+import { UserRole } from '../users/enums/user-role.enum';
+
+const mockUser: User = {
+  id: 1,
+  email: 'admin@test.com',
+  password: '',
+  role: UserRole.ADMIN,
+  hashedRefreshToken: null
+};
 
 const mockClass = {
   id: 1,
@@ -12,6 +22,7 @@ const mockClass = {
   duration: 60,
   sport: { id: 1, name: 'Football' },
   schedules: [],
+  createdBy: mockUser,
 };
 
 describe('ClassesService', () => {
@@ -39,31 +50,44 @@ describe('ClassesService', () => {
         { provide: AbstractSportRepository, useValue: mockSportRepo },
       ],
     }).compile();
-  
+
     service = module.get<ClassesService>(ClassesService);
     classRepo = module.get(getRepositoryToken(Class));
     sportRepo = module.get(AbstractSportRepository);
-  });  
+    jest.clearAllMocks();
+  });
 
   it('should create a class with a valid sport', async () => {
     mockSportRepo.findOne.mockResolvedValue(mockClass.sport);
     mockClassRepo.create.mockReturnValue(mockClass);
     mockClassRepo.save.mockResolvedValue(mockClass);
 
-    const result = await service.create({
-      description: 'Football Basics',
-      duration: 60,
-      sportId: 1,
-    });
+    const result = await service.create(
+      {
+        description: 'Football Basics',
+        duration: 60,
+        sportId: 1,
+      },
+      mockUser,
+    );
 
     expect(result).toEqual(mockClass);
     expect(mockSportRepo.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(mockClassRepo.create).toHaveBeenCalledWith({
+      sport: mockClass.sport,
+      description: 'Football Basics',
+      duration: 60,
+      createdBy: mockUser,
+    });
   });
 
   it('should throw if sport is not found when creating', async () => {
     mockSportRepo.findOne.mockResolvedValue(null);
     await expect(
-      service.create({ description: 'x', duration: 30, sportId: 999 }),
+      service.create(
+        { description: 'x', duration: 30, sportId: 999 },
+        mockUser,
+      ),
     ).rejects.toThrow(NotFoundException);
   });
 
