@@ -27,7 +27,6 @@ export class ClassesService {
       createdBy: adminId
     });
 
-    if (!adminId) throw new BadRequestException('Invalid admin user');
     return this.classRepo.save(newClass);
   }  
 

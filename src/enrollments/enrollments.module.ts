@@ -24,7 +24,7 @@ import { AbstractWsJwtAuthMiddleware } from '../auth/abstract/jwt-ws.abstract.mi
     EnrollmentsGateway,
     {
       provide: AbstractEnrollmentsGateway,
-      useClass: EnrollmentsGateway,
+      useExisting: EnrollmentsGateway,
     },
     WsJwtAuthMiddleware,
     {

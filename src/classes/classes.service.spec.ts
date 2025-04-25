@@ -22,6 +22,7 @@ const mockClass = {
   duration: 60,
   sport: { id: 1, name: 'Football' },
   schedules: [],
+  createdById: mockUser.id,
   createdBy: mockUser,
 };
 
