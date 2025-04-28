@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, Column, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Class } from '../../classes/entities/class.entity';
 
@@ -7,10 +7,18 @@ export class Enrollment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, { eager: true })
+  @Column({ name: 'userId' })
+  userId: number;
+
+  @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Class, { eager: true })
+  @Column({ name: 'classId' })
+  classId: number;
+
+  @ManyToOne(() => Class, { eager: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'classId' })
   class: Class;
 
   @CreateDateColumn()

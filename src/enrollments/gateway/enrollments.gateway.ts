@@ -11,11 +11,16 @@ import { AbstractWsJwtAuthMiddleware } from '../../auth/abstract/jwt-ws.abstract
   transports: ['websocket'],
   path: '/socket.io',
 })
-export class EnrollmentsGateway implements AbstractEnrollmentsGateway, OnGatewayConnection, OnGatewayDisconnect {
+export class EnrollmentsGateway
+  extends AbstractEnrollmentsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() private server: Server;
   private readonly logger = new Logger(EnrollmentsGateway.name);
 
-  constructor(private readonly jwtAuthMiddleware: AbstractWsJwtAuthMiddleware) {}
+  constructor(private readonly jwtAuthMiddleware: AbstractWsJwtAuthMiddleware) {
+    super()
+  }
 
   afterInit(server: Server) {
     server.use((socket, next) => {

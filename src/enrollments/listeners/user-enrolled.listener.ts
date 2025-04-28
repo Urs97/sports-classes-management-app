@@ -10,8 +10,6 @@ export class UserEnrolledListener {
 
   @OnEvent(EnrollmentEvents.USER_ENROLLED)
   handle(event: UserEnrolledEvent) {
-    if (!event.adminId) return;
-
     this.gateway.sendMessageToAdmin(event.adminId, {
       message: `User ${event.userEmail} enrolled in your class "${event.classDescription}".`,
     });

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Sport } from '../../sport/schema/sport.schema';
 import { Schedule } from '../../schedules/entities/schedule.entity';
 import { User } from '../../users/entities/user.entity';
@@ -20,6 +20,10 @@ export class Class {
   @OneToMany(() => Schedule, (schedule) => schedule.class)
   schedules: Schedule[];
 
-  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @Column({ name: 'createdById' })
+  createdById: number;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'createdById' })
   createdBy: User;
 }

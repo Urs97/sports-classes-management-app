@@ -15,7 +15,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: this.appConfigService.dbPassword,
       database: this.appConfigService.dbName,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     };
   }
 }
