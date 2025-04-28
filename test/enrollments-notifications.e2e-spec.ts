@@ -1,12 +1,9 @@
-import { setupE2ETest } from './utils/setup-e2e';
-import { getDataSourceToken } from '@nestjs/typeorm';
 import { User } from '../src/users/entities/user.entity';
 import { UserRole } from '../src/users/enums/user-role.enum';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { DataSource } from 'typeorm';
-import { connectAdminSocket } from './utils/ws-helpers';
+import { connectAdminSocket } from './helpers/ws-helpers';
 import { EnrollmentEvents } from '../src/enrollments/constants/enrollment-events.enum';
+import { getApp, getDataSource } from './utils/e2e-globals';
 
 describe('Enrollments WebSocket Notifications (E2E)', () => {
   jest.setTimeout(20000);
@@ -14,19 +11,17 @@ describe('Enrollments WebSocket Notifications (E2E)', () => {
   const student = { email: 'student@e2e.com', password: 'Student123!' };
   const admin = { email: 'admin@e2e.com', password: 'Admin123!' };
 
-  let app: INestApplication;
   let http: ReturnType<typeof request.agent>;
   let accessToken: string;
   let adminAccessToken: string;
   let classId: number;
   let socket: any;
 
-  beforeAll(async () => {
-    const setup = await setupE2ETest();
-    app = setup.app;
-    http = setup.http;
+  beforeEach(async () => {
+    const app = getApp();
+    http = request(app.getHttpServer());
 
-    const dataSource: DataSource = app.get(getDataSourceToken());
+    const dataSource = getDataSource();
     const userRepo = dataSource.getRepository(User);
 
     await http.post('/auth/register').send(student).expect(201);
@@ -63,7 +58,6 @@ describe('Enrollments WebSocket Notifications (E2E)', () => {
     if (socket && socket.connected) {
       socket.disconnect();
     }
-    await app.close();
   });
 
   it('should successfully connect the admin WebSocket client', async () => {

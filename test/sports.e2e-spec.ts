@@ -1,28 +1,21 @@
-import { setupE2ETest } from './utils/setup-e2e';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { createAdminAndLogin } from './utils/test-helpers';
+import { createAdminAndLogin } from './helpers/auth-helpers';
+import { getApp } from './utils/e2e-globals';
 
 describe('Sports E2E', () => {
-  let app: INestApplication;
   let http: ReturnType<typeof request.agent>;
   let accessToken: string;
 
   beforeEach(async () => {
-    const setup = await setupE2ETest();
-    app = setup.app;
-    http = setup.http;
+    const app = getApp();
+    http = request(app.getHttpServer());
 
-    const result = await createAdminAndLogin(http, setup.dataSource, {
+    const result = await createAdminAndLogin(http, {
       email: 'admin@sports.com',
       password: 'Admin123!',
     });
 
     accessToken = result.accessToken;
-  });
-
-  afterEach(async () => {
-    await app.close();
   });
 
   it('should create a new sport', async () => {

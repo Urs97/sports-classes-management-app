@@ -1,16 +1,12 @@
-import { setupE2ETest } from './utils/setup-e2e';
-import { getDataSourceToken } from '@nestjs/typeorm';
 import { User } from '../src/users/entities/user.entity';
 import { UserRole } from '../src/users/enums/user-role.enum';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { DataSource } from 'typeorm';
+import { getApp, getDataSource } from './utils/e2e-globals';
 
 describe('Enrollments E2E', () => {
   const user = { email: 'student@e2e.com', password: 'Student123!' };
   const admin = { email: 'admin@e2e.com', password: 'Admin123!' };
 
-  let app: INestApplication;
   let http: ReturnType<typeof request.agent>;
   let userId: number;
   let classId: number;
@@ -18,11 +14,10 @@ describe('Enrollments E2E', () => {
   let adminAccessToken: string;
 
   beforeEach(async () => {
-    const setup = await setupE2ETest();
-    app = setup.app;
-    http = setup.http;
+    const app = getApp();
+    http = request(app.getHttpServer());
 
-    const dataSource: DataSource = app.get(getDataSourceToken());
+    const dataSource = getDataSource();
     const userRepo = dataSource.getRepository(User);
 
     // Register + login user
@@ -59,10 +54,6 @@ describe('Enrollments E2E', () => {
       .expect(201);
 
     classId = classRes.body.id;
-  });
-
-  afterEach(async () => {
-    await app.close();
   });
 
   it('should allow a user to enroll into a class', async () => {

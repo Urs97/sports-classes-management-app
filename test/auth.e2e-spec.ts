@@ -1,9 +1,7 @@
-import { setupE2ETest } from './utils/setup-e2e';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+import { getApp } from './utils/e2e-globals';
 
 describe('Auth E2E', () => {
-  let app: INestApplication;
   let http: ReturnType<typeof request.agent>;
   let accessToken: string;
   let refreshTokenCookie: string;
@@ -14,7 +12,8 @@ describe('Auth E2E', () => {
   };
 
   beforeEach(async () => {
-    ({ app, http } = await setupE2ETest());
+    const app = getApp();
+    http = request(app.getHttpServer());
 
     await http.post('/auth/register').send(testUser).expect(201);
 
@@ -28,10 +27,6 @@ describe('Auth E2E', () => {
     const found = rawCookies.find((cookie) => cookie.startsWith('refresh_token='));
     if (!found) throw new Error('Refresh token cookie not found');
     refreshTokenCookie = found;
-  });
-
-  afterEach(async () => {
-    await app.close();
   });
 
   it('should register a new user successfully', async () => {
