@@ -1,30 +1,38 @@
 import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
-import * as request from 'supertest';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
 
-export const setupE2ETest = async () => {
+let app;
+let dataSource;
+
+beforeAll(async () => {
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
 
-  const app = moduleRef.createNestApplication();
+  app = moduleRef.createNestApplication();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(3001);
-  const http = request.agent(app.getHttpServer());
-  const dataSource = app.get<DataSource>(getDataSourceToken());
+  dataSource = app.get(getDataSourceToken()) as DataSource;
 
+  globalThis['e2eApp'] = app;
+  globalThis['e2eDataSource'] = dataSource;
+});
+
+beforeEach(async () => {
+  const dataSource = globalThis['e2eDataSource'];
   await truncateAllTables(dataSource);
+});
 
-  return { app, http, dataSource };
-};
+afterAll(async () => {
+  await app.close();
+});
 
 const truncateAllTables = async (dataSource: DataSource) => {
   const entities = dataSource.entityMetadatas;
-
   for (const entity of entities) {
     const repo = dataSource.getRepository(entity.name);
     await repo.query(`TRUNCATE TABLE "${entity.tableName}" RESTART IDENTITY CASCADE`);

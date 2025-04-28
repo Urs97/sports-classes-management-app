@@ -1,8 +1,7 @@
-import { setupE2ETest } from './utils/setup-e2e';
 import { UserRole } from '../src/users/enums/user-role.enum';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { createAdminAndLogin } from './utils/test-helpers';
+import { createAdminAndLogin } from './helpers/auth-helpers';
+import { getApp } from './utils/e2e-globals';
 
 describe('Users E2E', () => {
   const newUser = {
@@ -10,17 +9,15 @@ describe('Users E2E', () => {
     password: 'UserPass456!',
   };
 
-  let app: INestApplication;
   let http: ReturnType<typeof request.agent>;
   let accessToken: string;
   let userId: string;
 
   beforeEach(async () => {
-    const setup = await setupE2ETest();
-    app = setup.app;
-    http = setup.http;
+    const app = getApp();
+    http = request(app.getHttpServer());
 
-    const result = await createAdminAndLogin(http, setup.dataSource, {
+    const result = await createAdminAndLogin(http, {
       email: 'admin@users.com',
       password: 'Admin123!',
     });
@@ -34,10 +31,6 @@ describe('Users E2E', () => {
       .expect(201);
 
     userId = createRes.body.id;
-  });
-
-  afterEach(async () => {
-    await app.close();
   });
 
   it('should create a new user as admin', async () => {

@@ -1,7 +1,7 @@
 import { User } from '../../src/users/entities/user.entity';
 import { UserRole } from '../../src/users/enums/user-role.enum';
-import { DataSource } from 'typeorm';
 import * as request from 'supertest';
+import { getDataSource } from '../utils/e2e-globals';
 
 interface CreateAdminResult {
   accessToken: string;
@@ -9,13 +9,14 @@ interface CreateAdminResult {
 }
 
 export const createAdminAndLogin = async (
-http: ReturnType<typeof request.agent>,
-  dataSource: DataSource,
+  http: ReturnType<typeof request.agent>,
   adminUser = {
     email: 'admin@e2e.com',
     password: 'Admin123!',
   }
 ): Promise<CreateAdminResult> => {
+  const dataSource = getDataSource();
+
   await http.post('/auth/register').send(adminUser).expect(201);
 
   const userRepo = dataSource.getRepository(User);

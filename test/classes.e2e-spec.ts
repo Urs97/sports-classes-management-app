@@ -1,21 +1,18 @@
-import { setupE2ETest } from './utils/setup-e2e';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { createAdminAndLogin } from './utils/test-helpers';
+import { getApp } from './utils/e2e-globals';
+import { createAdminAndLogin } from './helpers/auth-helpers';
 
 describe('Classes E2E', () => {
-  let app: INestApplication;
   let http: ReturnType<typeof request.agent>;
   let accessToken: string;
   let sportId: number;
   let classId: number;
 
   beforeEach(async () => {
-    const setup = await setupE2ETest();
-    app = setup.app;
-    http = setup.http;
+    const app = getApp();
+    http = request(app.getHttpServer());
 
-    const result = await createAdminAndLogin(http, setup.dataSource, {
+    const result = await createAdminAndLogin(http, {
       email: 'admin@classes.com',
       password: 'Admin123!',
     });
@@ -41,10 +38,6 @@ describe('Classes E2E', () => {
       .expect(201);
 
     classId = classRes.body.id;
-  });
-
-  afterEach(async () => {
-    await app.close();
   });
 
   it('should allow admin to create a class', async () => {
