@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { User } from '../users/entities/user.entity';
-import { AppConfigService } from '../config/config.service';
+import { AuthConfig } from '../common/config/env.validation';
 import { sanitizeUser } from '../users/utils/user.utils';
 import { SanitizedUserDto } from '../users/dto/sanitized-user.dto';
 import {
@@ -22,7 +22,7 @@ import { setRefreshTokenCookie } from './utils/cookie.utils';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly configService: AppConfigService,
+    private readonly config: AuthConfig,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
@@ -46,12 +46,12 @@ export class AuthService {
     const payload = buildJwtPayload(user);
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.accessTokenExpiresIn,
+      expiresIn: this.config.ACCESSTOKENEXPIRESIN,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.refreshTokenExpiresIn,
-      secret: this.configService.refreshTokenSecret,
+      expiresIn: this.config.REFRESHTOKENEXPIRESIN,
+      secret: this.config.REFRESHTOKENSECRET,
     });
 
     return { accessToken, refreshToken };
