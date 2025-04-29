@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { AppConfigService } from '../config/config.service';
+import { AuthConfig } from '../common/config/env.validation'; 
 import * as argon2 from 'argon2';
 import { UserRole } from '../users/enums/user-role.enum';
 import { UnauthorizedException } from '@nestjs/common';
@@ -44,7 +44,7 @@ describe('AuthService', () => {
           },
         },
         {
-          provide: AppConfigService,
+          provide: AuthConfig,
           useValue: {
             accessTokenExpiresIn: '15m',
             refreshTokenExpiresIn: '7d',

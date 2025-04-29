@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { RootConfig } from '../../common/config/env.validation';
 import { Socket } from 'socket.io';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { AbstractWsJwtAuthMiddleware } from '../abstract/jwt-ws.abstract.middleware';
@@ -9,7 +9,7 @@ import { AbstractWsJwtAuthMiddleware } from '../abstract/jwt-ws.abstract.middlew
 export class WsJwtAuthMiddleware implements AbstractWsJwtAuthMiddleware {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly configService: RootConfig,
   ) {}
 
   use(socket: Socket, next: (err?: Error) => void): void {
@@ -21,7 +21,7 @@ export class WsJwtAuthMiddleware implements AbstractWsJwtAuthMiddleware {
 
     try {
       const payload = this.jwtService.verify<JwtPayload>(token, {
-        secret: this.configService.get<string>('JWT_SECRET'),
+        secret: this.configService.AUTH.JWTSECRET,
       });
 
       socket.data.user = payload;

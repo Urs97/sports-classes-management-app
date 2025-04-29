@@ -7,23 +7,23 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { AuthController } from './auth.controller';
-import { RefreshTokenStrategy } from './strategies/refresh-token-strategy';
-import { AppConfigModule } from '../config/config.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { RootConfig } from '../common/config/env.validation';
 import { WsJwtAuthMiddleware } from './guards/jwt-ws.middleware';
+import { TypedConfigModule } from 'nest-typed-config';
 
 @Module({
   imports: [
+    TypedConfigModule,
     UsersModule,
     PassportModule,
-    AppConfigModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
+      imports: [TypedConfigModule],
+      inject: [RootConfig],
+      useFactory: (config: RootConfig) => ({
+        secret: config.AUTH.JWTSECRET,
         signOptions: {
-          expiresIn: config.get<string>('ACCESS_TOKEN_EXPIRES_IN'),
+          expiresIn: config.AUTH.ACCESSTOKENEXPIRESIN,
         },
       }),
     }),
